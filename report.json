@@ -1,5 +1,16 @@
 {
-  "spaniel_blenheim_n02086646_118.jpg": 14506,
-  "spaniel_brittany_n02101388_6081.jpg": 6918,
-  "spaniel_japanese_n02085782_664.jpg": 20882
+  "spaniel_blenheim_n02086646_2805.jpg": {
+    "порода": "spaniel",
+    "подпорода": "blenheim",
+    "url": "https://images.dog.ceo/breeds/spaniel-blenheim/n02086646_2805.jpg",
+    "путь": "spaniel/spaniel_blenheim_n02086646_2805.jpg",
+    "размер": 9895
+  },
+  "spaniel_irish_n02102973_3635.jpg": {
+    "порода": "spaniel",
+    "подпорода": "irish",
+    "url": "https://images.dog.ceo/breeds/spaniel-irish/n02102973_3635.jpg",
+    "путь": "spaniel/spaniel_irish_n02102973_3635.jpg",
+    "размер": 8286
+  }
 }
