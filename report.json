@@ -1,16 +1,23 @@
 {
-  "spaniel_blenheim_n02086646_2805.jpg": {
+  "spaniel_japanese_n02085782_1350.jpg": {
     "порода": "spaniel",
-    "подпорода": "blenheim",
-    "url": "https://images.dog.ceo/breeds/spaniel-blenheim/n02086646_2805.jpg",
-    "путь": "spaniel/spaniel_blenheim_n02086646_2805.jpg",
-    "размер": 9895
+    "подпорода": "japanese",
+    "url": "https://images.dog.ceo/breeds/spaniel-japanese/n02085782_1350.jpg",
+    "путь": "spaniel/spaniel_japanese_n02085782_1350.jpg",
+    "размер": 19018
   },
-  "spaniel_irish_n02102973_3635.jpg": {
+  "spaniel_sussex_n02102480_1525.jpg": {
     "порода": "spaniel",
-    "подпорода": "irish",
-    "url": "https://images.dog.ceo/breeds/spaniel-irish/n02102973_3635.jpg",
-    "путь": "spaniel/spaniel_irish_n02102973_3635.jpg",
-    "размер": 8286
+    "подпорода": "sussex",
+    "url": "https://images.dog.ceo/breeds/spaniel-sussex/n02102480_1525.jpg",
+    "путь": "spaniel/spaniel_sussex_n02102480_1525.jpg",
+    "размер": 16197
+  },
+  "spaniel_welsh_n02102177_967.jpg": {
+    "порода": "spaniel",
+    "подпорода": "welsh",
+    "url": "https://images.dog.ceo/breeds/spaniel-welsh/n02102177_967.jpg",
+    "путь": "spaniel/spaniel_welsh_n02102177_967.jpg",
+    "размер": 21555
   }
 }
