@@ -94,7 +94,13 @@ if sub_breeds:
 
         if put_response.status_code in [200, 201]:
             print(f'Загружен: {file_name}')
-            report[file_name] = len(data_image)
+            report[file_name] = {
+                "порода": breed,
+                "подпорода": sub,
+                "url": image_url,
+                "путь": f"{breed}/{file_name}",
+                "размер": len(data_image)
+            }
         else:
             print(f'Ошибка загрузки {file_name} (код {put_response.status_code})')
 
@@ -146,7 +152,13 @@ else:
         
     if put_response.status_code in [200, 201]:
         print(f'Загружен: {file_name}')
-        report[file_name] = len(img_response.content)
+        report[file_name] = {
+            "порода": breed,
+            "подпорода": "нет",
+            "url": image_url,
+            "путь": f"{breed}/{file_name}",
+            "размер": len(img_response.content)
+        }
     else:
         print(f'Ошибка загрузки (код {put_response.status_code})')
 
