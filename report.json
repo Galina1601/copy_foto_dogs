@@ -1,23 +1,9 @@
 {
-  "spaniel_japanese_n02085782_1350.jpg": {
-    "порода": "spaniel",
-    "подпорода": "japanese",
-    "url": "https://images.dog.ceo/breeds/spaniel-japanese/n02085782_1350.jpg",
-    "путь": "spaniel/spaniel_japanese_n02085782_1350.jpg",
-    "размер": 19018
-  },
-  "spaniel_sussex_n02102480_1525.jpg": {
-    "порода": "spaniel",
-    "подпорода": "sussex",
-    "url": "https://images.dog.ceo/breeds/spaniel-sussex/n02102480_1525.jpg",
-    "путь": "spaniel/spaniel_sussex_n02102480_1525.jpg",
-    "размер": 16197
-  },
-  "spaniel_welsh_n02102177_967.jpg": {
-    "порода": "spaniel",
-    "подпорода": "welsh",
-    "url": "https://images.dog.ceo/breeds/spaniel-welsh/n02102177_967.jpg",
-    "путь": "spaniel/spaniel_welsh_n02102177_967.jpg",
-    "размер": 21555
+  "poodle_toy_n02113624_8444.jpg": {
+    "порода": "poodle",
+    "подпорода": "toy",
+    "url": "https://images.dog.ceo/breeds/poodle-toy/n02113624_8444.jpg",
+    "путь": "poodle/poodle_toy_n02113624_8444.jpg",
+    "размер": 18809
   }
 }

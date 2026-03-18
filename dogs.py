@@ -2,167 +2,180 @@ import requests
 import json
 import sys
 
-breed = input("Введите породу собаки (по-английски): ")
-breed = breed.lower().strip()
-yd_token = input("Введите токен Яндекса: ")
-print("Получение фото")
-
-# Получаем список всех пород
-url_breeds = "https://dog.ceo/api/breeds/list/all"
-response = requests.get(url_breeds, timeout=10)
-
-if response.status_code != 200:
-    print("Ошибка получения списка пород")
-    sys.exit(1)
-
-breeds_data = response.json()['message']
-
-if breed not in breeds_data:
-    print("Такой породы нет")
-    sys.exit(1)
-
-sub_breeds = breeds_data[breed]
-
-# Создание папки на Яндекс.Диске
-url_create_folder = 'https://cloud-api.yandex.net/v1/disk/resources'
-headers = {'Authorization': f'OAuth {yd_token}'}
-params = {'path': breed}
-response = requests.put(url_create_folder, headers=headers, params=params, timeout=10)
-
-if response.status_code == 201:
-    print('Папка создана')
-elif response.status_code == 409:
-    print('Папка уже существует')
-else:
-    print('Ошибка создания папки')
-    sys.exit(1)
-
-# Словарь для отчёта
-report = {}
-
-if sub_breeds:
-    print(f"Найдены подпороды: {sub_breeds}")
-
-    for sub in sub_breeds:
-        print(f"\n Обрабатываю подпороду: {sub}")
-
-        # Получаем случайную картинку для подпороды
-        dog_url = f'https://dog.ceo/api/breed/{breed}/{sub}/images/random'
-        print(f"Запрос к API: {dog_url}")
-        response = requests.get(dog_url, timeout=10)
+#  Функция № 1
+def look_for_breed(breed):
+    try:
+        url = "https://dog.ceo/api/breeds/list/all"
+        response = requests.get(url, timeout=30)
 
         if response.status_code != 200:
-            print(f'Ошибка получения картинки для {sub}')
-            continue
+            print("Ошибка получения списка пород")
+            sys.exit(1)
+
+        breeds_data = response.json()['message']
+
+        if breed not in breeds_data:
+            print('Такой породы нет')
+            sys.exit(0)
+
+        return breeds_data[breed]
+
+    except:
+        print('Ошибка при проверке породы')
+        sys.exit(0)
+
+
+#  Функция № 2
+def make_folder(breed, token):
+    try:
+        url = "https://cloud-api.yandex.net/v1/disk/resources"
+        headers = {'Authorization': f'OAuth {token}'}
+        params = {'path': breed}
+
+        response = requests.put(url, headers=headers, params=params, timeout=30)
+
+        print(f"Код ответа: {response.status_code}")
+        print(f"Текст ответа: {response.text}")
+
+        if response.status_code == 201:
+            print("Папка создана")
+        elif response.status_code == 409:
+            print("Папка уже существует")
+        else:
+            print("Ошибка создания папки")
+            sys.exit(1)
+
+    except:
+        print("Ошибка при создании папки")
+        sys.exit(1)
+
+
+
+#  Функция №3
+def copy_photo(breed, sub_breed):
+    try:
+        if sub_breed:
+            url = f"https://dog.ceo/api/breed/{breed}/{sub_breed}/images/random"
+        else:
+            url = f"https://dog.ceo/api/breed/{breed}/images/random"
+
+
+        response = requests.get(url, timeout=30)
+        if response.status_code != 200:
+            print("Ошибка получения картинки")
+            return None, None, None
 
         image_url = response.json()['message']
-        file_name = f"{breed}_{sub}_{image_url.split('/')[-1]}"
+        print(f"URL картинки: {image_url}")
+
+        if sub_breed:
+            file_name = f"{breed}_{sub_breed}_{image_url.split('/')[-1]}"
+        else:
+            file_name = f"{breed}_{image_url.split('/')[-1]}"
+
         print(f"URL картинки: {image_url}")
         print(f"Имя файла: {file_name}")
 
-        # Скачиваем картинку
-        print("начало скачивания.")
+
         try:
-            response_image = requests.get(image_url, timeout=10)
-            print(f"Статус скачивания: {response_image.status_code}")
-            if response_image.status_code != 200:
-                print(f'Ошибка скачивания {file_name}, статус {response_image.status_code}')
-                continue
-            data_image = response_image.content
-            print(f"Размер: {len(data_image)} байт")
+            img_response = requests.get(image_url, timeout=30)
+            if img_response.status_code != 200:
+                print('Ошибка скачивания')
+                return None, None, None
         except:
-            print(f"Не удалось скачать {file_name} (таймаут или ошибка). Перехожу к следующей подпороде.")
-            continue
+            print("Ошибка скачивания (сайт не отвечает)")
+            return None, None, None
 
-        # Получаем ссылку для загрузки на Я.Диск
-        url_upload = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
-        params = {'path': f'{breed}/{file_name}'}
-        print('Запрашиваю ссылку.')
-        upload_response = requests.get(url_upload, headers=headers, params=params, timeout=10)
+        if img_response.status_code != 200:
+            print("Ошибка скачивания (плохой статус)")
+            return None, None, None
 
-        if upload_response.status_code != 200:
-            print(f'Ошибка получения ссылки для {file_name}')
-            continue
+        if len(img_response.content) < 1000:
+            print("Фото слишком маленькое")
+            return None, None, None
 
-        upload_url = upload_response.json()['href']
-        print("Ссылка для загрузки получена")
+        print(f"Размер: {len(img_response.content)} байт")
+        return img_response.content, file_name, image_url
 
-        # Загружаем на Я.Диск
-        print('Загружаю файл на Я.Диск')
-        put_response = requests.put(upload_url, data=data_image, timeout=10)
-        print(f"Статус загрузки: {put_response.status_code}")
+    except:
+        print("Ошибка при получении фото")
+        return None, None, None
+
+
+    # ФУНКЦИЯ 4: Загрузка на Яндекс-диск
+def upload_photo(photo_data, file_name, breed, token):
+    try:
+        url = "https://cloud-api.yandex.net/v1/disk/resources/upload"
+        headers = {'Authorization': f'OAuth {token}'}
+        params = {'path': f"{breed}/{file_name}"}
+
+        response = requests.get(url, headers=headers, params=params, timeout=30)
+
+        if response.status_code != 200:
+            print("Ошибка получения ссылки")
+            return "False"
+
+        upload_url = response.json()['href']
+
+        put_response = requests.put(upload_url, data=photo_data, timeout=30)
 
         if put_response.status_code in [200, 201]:
-            print(f'Загружен: {file_name}')
+            print(f"Загружено: {file_name}")
+            return "True"
+        else:
+            print(f"Ошибка загрузки")
+            return "False"
+
+    except:
+        print("Ошибка при загрузке")
+        return "False"
+
+breed = input("Введите породу собаки (по-английски): ").lower().strip()
+token = input("Введите токен Яндекса: ")
+
+sub_breeds = look_for_breed(breed)
+print(f"Найдены подпороды: {sub_breeds}")
+
+
+
+
+make_folder(breed, token)
+
+
+report = {}
+
+if sub_breeds:
+    for sub in sub_breeds:
+        print(f"\n Обрабатываю подпороду: {sub} ")
+        photo_data, file_name, image_url = copy_photo(breed, sub)
+        if photo_data:
+            result = upload_photo(photo_data, file_name, breed, token)
+            if result == "True":
+                report[file_name] = {
+                    "порода": breed,
+                    "подпорода": sub,
+                    "url": image_url,
+                    "путь": f"{breed}/{file_name}",
+                    "размер": len(photo_data)
+                }
+else:
+    print("\n Нет подпород, загружаю основную породу ")
+    photo_data, file_name, image_url = copy_photo(breed, None)
+    if photo_data:
+        result = upload_photo(photo_data, file_name, breed, token)
+        if result == "True":
             report[file_name] = {
                 "порода": breed,
-                "подпорода": sub,
+                "подпорода": "нет",
                 "url": image_url,
                 "путь": f"{breed}/{file_name}",
-                "размер": len(data_image)
+                "размер": len(photo_data)
             }
-        else:
-            print(f'Ошибка загрузки {file_name} (код {put_response.status_code})')
 
-else:
-        #  Подпород нет– загружаем одну картинку основной породы
-    print("\n Нет подпород, загружаем основную породу ")
-
-    dog_url = f'https://dog.ceo/api/breed/{breed}/images/random'
-    print(f"Запрос к: {dog_url}")
-    response = requests.get(dog_url, timeout=10)
-
-    if response.status_code != 200:
-        print('Ошибка получения картинки')
-        sys.exit(1)
-
-    image_url = response.json()['message']
-    file_name = f"{breed}_{image_url.split('/')[-1]}"
-    print(f"URL картинки: {image_url}")
-    print(f"Имя файла: {file_name}")
-
-    # Скачиваем картинку
-    print("Начинаю скачивание картинки...")
-    img_response = requests.get(image_url, timeout=10)
-
-    if img_response.status_code != 200:
-        print('Ошибка скачивания')
-        sys.exit(1)
-
-    print(f"Размер: {len(img_response.content)} байт")
-
-    # Получаем ссылку для загрузки на Я.Диск
-    url_upload = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
-    params = {'path': f'{breed}/{file_name}'}
-    print("Запрашиваю ссылку для загрузки...")
-    upload_response = requests.get(url_upload, headers=headers, params=params, timeout=10)
-    print(f"Статус получения ссылки: {upload_response.status_code}")
-
-    if upload_response.status_code != 200:
-        print('Ошибка получения ссылки')
-        sys.exit(1)
-
-    upload_url = upload_response.json()['href']
-    print("Ссылка для загрузки получена")
-
-    # Загружаем на Я.Диск
-    print("Загружаю файл на Яндекс.Диск...")
-    put_response = requests.put(upload_url, data=img_response.content, timeout=10)
-    print(f"Статус загрузки: {put_response.status_code}")
-        
-    if put_response.status_code in [200, 201]:
-        print(f'Загружен: {file_name}')
-        report[file_name] = {
-            "порода": breed,
-            "подпорода": "нет",
-            "url": image_url,
-            "путь": f"{breed}/{file_name}",
-            "размер": len(img_response.content)
-        }
-    else:
-        print(f'Ошибка загрузки (код {put_response.status_code})')
-
-# Сохраняем отчёт в JSON
 with open('report.json', 'w', encoding='utf-8') as f:
     json.dump(report, f, ensure_ascii=False, indent=2)
-print(f'\nОтчёт сохранён в report.json. Загружено файлов: {len(report)}')
+
+print(f"\n+ Загружено файлов: {len(report)}")
+print("Отчёт сохранён в report.json")
+
+
